@@ -1,0 +1,134 @@
+---
+layout : post
+category : lessons
+tags : [开始]
+---
+
+
+增加用户：create user 用户名@'host' identified by '密码';
+    如：create user lotus@localhost identified by '12345';                           #新增用户‘lotus’，密码为‘12345’
+            host指定用户在哪个主机上可登陆，如果是本地用户则用localhost，如果是任何远程主机，则使用通配符‘%’
+            密码可以为空
+
+删除用户：drop user '用户名'@‘%’;
+     如：drop user lotus@localhost;                           #从localhost删除lotus用户
+
+用户授权：grant 权限 on 数据库名.表名 to ‘用户’@‘host’ identified by '密码';
+     如：grant select slave on *.* to test@% idenitfied by '123';                   
+     #给予test用户在所有远程主机上select和slave所有数据库和库表的权限，密码为123。
+     #数据库/表名使用‘*’则表示所有数据库/表。host以‘%’来代替则表示所有远程主机，如需在特定的某一主机登录，则须指明该主机的IP地址，若只能在本地登录，则写作：localhost。(不指名%、IP或localhost，则认为是所有远程主机，即‘%’)
+
+撤销用户权限：revoke 权限 on 数据库名.表名 from ‘用户’@‘host’;
+     注意：权限 数据库名 表名 必须与授权时相对应
+
+查看用户权限：show grants for '用户'@'host';
+
+设置用户密码：set password for '用户'@'host' = password('新密码');
+          若是当前用户，则：set password = password('新密码');
+如：set password for test@'%' = password('hello123');
+
+
+
+
+增加数据库：create database 数据库名;
+    如：create database test;                                    #增加名为‘test’的数据库
+
+删除数据库：drop database 数据库名;
+    如：drop database test;                                       #删除名为'test'的数据库
+
+连接数据库：use database ‘数据库名’;
+
+显示所有数据库：show databases;
+
+
+
+
+创建数据表：create table '表名'(<字段名1> <类型1>[,……<字段名n><类型n>]);
+     #多个字段之间用','(逗号)隔开
+     如：建立一个名为tb1的表：
+
+字段名  数字类型	数据宽度	是否为空	是否主键	自动增加	默认值
+id	int	4	否	primary key	auto_increment	 
+name	char	20	否	 	 	 
+sex	int	4	否	 	 	0
+degree	double	16	是	 	 	 
+
+               mysql>create table tb1(
+                         ->id int(4) no null primary key auto_increment,
+                         ->name char(20) no null,
+                         ->sex int(4) no null default'0',
+                         ->degree double(16,2));
+
+获取表结构：desc '表名';
+                     show columns from '表名';
+
+删除数据表：drop table '表名';
+
+表插入数据：insert into '表名' values (值1[,(值2),……(值n)])[,(值1[,(值2),……(值n)])];          #2组数据、每个数据间用逗号隔开
+     如：往上表插入数据，insert into tb1 values(1,'Tom',95),(2,'John',86.5),(3,'Jim',78);
+
+查询表中数据：select <字段1，字段2……> from <表名> where <表达式>;
+         如：select * from tb1;
+     查询前几行数据，举例：2行——select * from tb1 order by id limit 0,2;
+
+删除表中数据：delete from <表名> where <表达式>;
+     如：删除tb1中id为1的记录——mysql>delete from tb1 where id=1;
+
+修改表中数据：update <表名> set 字段=新值,…… where <表达式>;
+     如：update tb1 set name='Jack' where id=1;
+          UPDATE语法可以用新值更新原有表行中的各列。SET子句指示要修改哪些列和要给予哪些值。WHERE子句指定应该更新哪些行。如果没有WHERE子句，则更新所有行。如果指定了ORDER BY子句，则按照被指定的顺序对行进行更新。LIMIT子句用于给定一个限值，限制可以被更新的行的数目。
+
+增加字段：alter table <表名> add <字段> <类型> <其他>;
+     如：在tb1表中增加一个字段passtest，类型int(4)，默认值为0
+          mysql> alter table tb1 add passtest int(4) default'0';
+
+加索引
+   mysql> alter table 表名 add index 索引名 (字段名1[，字段名2 …]);
+     如： mysql> alter table employee add index emp_name (name);
+
+加主关键字的索引
+  mysql> alter table 表名 add primary key (字段名);
+     如： mysql> alter table employee add primary key(id);
+
+加唯一限制条件的索引
+   mysql> alter table 表名 add unique 索引名 (字段名);
+     如： mysql> alter table employee add unique emp_name2(cardnumber);
+
+删除某个索引
+   mysql> alter table 表名 drop index 索引名;
+     如： mysql>alter table employee drop index emp_name;
+
+增加字段：mysql> ALTER TABLE table_name ADD field_name field_type;
+
+修改原字段名称及类型：mysql> ALTER TABLE table_name CHANGE old_field_name new_field_name field_type;
+
+删除字段：MySQL ALTER TABLE table_name DROP field_name;
+
+修改表名：rename table <原表名> to <新表名>;
+     如：rename table tb1 to mytb1;                                   #将原tb1重命名为mytb1
+当你执行 RENAME 时，你不能有任何锁定的表或活动的事务。你同样也必须有对原初表的 ALTER 和 DROP 权限，以及对新表的 CREATE 和 INSERT 权限。
+如果在多表更名中，MySQL 遭遇到任何错误，它将对所有被更名的表进行倒退更名，将每件事物退回到最初状态。
+
+
+
+
+备份数据库：
+1.导出整个数据库
+导出文件默认是存在mysql\bin目录下
+    mysqldump -u 用户名 -p 数据库名 > 导出的文件名
+    mysqldump -u user_name -p123456 database_name > outfile_name.sql
+
+2.导出一个表
+    mysqldump -u 用户名 -p 数据库名 表名> 导出的文件名
+    mysqldump -u user_name -p database_name table_name > outfile_name.sql
+
+3.导出一个数据库结构
+    mysqldump -u user_name -p -d –add-drop-table database_name > outfile_name.sql
+    -d 没有数据 –add-drop-table 在每个create语句之前增加一个drop table
+
+4.带语言参数导出
+    mysqldump -uroot -p –default-character-set=latin1 –set-charset=gbk –skip-opt database_name > outfile_name.sql
+
+例如，将aaa库备份到文件back_aaa中：
+　　[root@test1 root]# cd　/home/data/mysql
+　　[root@test1 mysql]# mysqldump -u root -p --opt aaa > back_aaa
