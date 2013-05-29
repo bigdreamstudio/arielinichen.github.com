@@ -40,13 +40,13 @@ vim /etc/my.cnf
      在Master上登录mysql，在mysql命令行下：
      mysql>show master status \G;
 
-*************************** 1. row ***************************
+"
             File: mysql-bin.000004
         Position: 106
     Binlog_Do_DB:
 Binlog_Ignore_DB:
 1 row in set (0.00 sec)
-***************************************************************
+
 "     可见，log-bin文件为：mysql-bin.000004；Position值为：106
 
 6、在Slave上写入log-bin及Position值
@@ -58,7 +58,7 @@ Binlog_Ignore_DB:
      mysql>slave start;                                        #启动同步
      mysql>show slave status \G;                        #查看同步是否成功
 
-*************************** 1. row ***************************
+"
                Slave_IO_State: Waiting for master to send event
                   Master_Host: 192.168.184.10
                   Master_User: test
@@ -98,7 +98,8 @@ Master_SSL_Verify_Server_Cert: No
                Last_SQL_Errno: 0
                Last_SQL_Error:
 1 row in set (0.00 sec)
-***************************************************************
+
+
 可见，第11,12行的值为Yes，则表示同步成功；若任何一个为No，则同步未成功。
 
 重启Slave的MYSQL
